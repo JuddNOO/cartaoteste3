@@ -5,17 +5,58 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   </head>
   <body>
-    <a-scene mindar-image="imageTargetSrc: targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene 
+      mindar-image="imageTargetSrc: targets.mind;" 
+      color-space="sRGB" 
+      renderer="colorManagement: true, physicallyCorrectLights" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
+
       <a-assets>
         <img id="card" src="CartaoTeste_NOO.png" />
         <a-asset-item id="avatarModel" src="shapes_teste4.glb"></a-asset-item>
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
       <a-entity mindar-image-target="targetIndex: 0">
         <a-plane src="#card" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>
-        <a-gltf-model rotation="0 0 0 " position="0 0 0.1" scale="0.1 0.1 0.1" src="#avatarModel" animation="property: rotation; to: 0 0 360; dur: 5000; easing: easeInOutQuad; loop: true; dir: alternate">
+
+        <!-- GLTF model with ID for script access -->
+        <a-gltf-model id="colorModel" rotation="0 0 0" position="0 0 0.1" scale="0.1 0.1 0.1" src="#avatarModel"
+          animation="property: rotation; to: 0 0 360; dur: 5000; easing: easeInOutQuad; loop: true; dir: alternate">
+        </a-gltf-model>
       </a-entity>
     </a-scene>
+
+    <!-- JavaScript to animate material color -->
+    <script>
+      AFRAME.registerComponent('color-cycle', {
+        init: function () {
+          const el = this.el;
+          el.addEventListener('model-loaded', () => {
+            const mesh = el.getObject3D('mesh');
+            if (!mesh) return;
+
+            // Assume the model uses MeshStandardMaterial
+            mesh.traverse((node) => {
+              if (node.isMesh && node.material && node.material.color) {
+                let hue = 0;
+                setInterval(() => {
+                  hue = (hue + 1) % 360;
+                  const color = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+                  node.material.color.set(color);
+                }, 100); // Update every 100ms (~10fps)
+              }
+            });
+          });
+        }
+      });
+
+      // Attach the component to the model
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('#colorModel').setAttribute('color-cycle', '');
+      });
+    </script>
   </body>
 </html>
