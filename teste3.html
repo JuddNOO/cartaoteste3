@@ -4,38 +4,81 @@
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
-      /* UI button style */
-      .ui-link {
-        position: fixed;
+      body { margin: 0; overflow: hidden; font-family: sans-serif; }
+
+      /* Main Link Button */
+      #link-button {
+        position: absolute;
         bottom: 30px;
         left: 50%;
         transform: translateX(-50%);
         background: white;
-        border-radius: 16px;
         padding: 12px 24px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        font-family: sans-serif;
-        font-size: 16px;
-        color: black;
-        text-decoration: none;
-        z-index: 9999;
+        border-radius: 25px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
       }
-      .ui-link:hover {
-        background: #f0f0f0;
+
+      /* Slide-in Menu */
+      #menu {
+        position: absolute;
+        bottom: -100%;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: rgba(255,255,255,0.95);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.5s ease-in-out;
+        transform: translateY(100%);
+        z-index: 9;
+      }
+
+      #menu.show {
+        transform: translateY(0);
+      }
+
+      .menu-button {
+        margin: 12px 0;
+        padding: 12px 24px;
+        border-radius: 25px;
+        border: none;
+        background: white;
+        font-weight: bold;
+        font-size: 16px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        cursor: pointer;
+      }
+
+      #close-menu {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: black;
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       }
     </style>
   </head>
-  <body>
-    <!-- UI BUTTON OUTSIDE THE SCENE -->
-    <a class="ui-link" href="https://noo.com.br/" target="_blank">Website</a>
 
-    <!-- A-FRAME + MINDAR SCENE -->
-    <a-scene mindar-image="imageTargetSrc: targets.mind;" 
-             color-space="sRGB" 
-             renderer="colorManagement: true, physicallyCorrectLights" 
-             vr-mode-ui="enabled: false" 
-             device-orientation-permission-ui="enabled: false">
-             
+  <body>
+    <!-- AR Scene -->
+    <a-scene mindar-image="imageTargetSrc: targets.mind;" color-space="sRGB"
+             renderer="colorManagement: true, physicallyCorrectLights"
+             vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+
       <a-assets>
         <img id="card" src="CartaoTeste_NOO.png" />
         <a-asset-item id="avatarModel" src="shapes_teste4.glb"></a-asset-item>
@@ -45,33 +88,40 @@
 
       <a-entity mindar-image-target="targetIndex: 0">
         <a-plane src="#card" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>
-        
-        <a-gltf-model id="model" 
-                      rotation="0 0 0" 
-                      position="0 0 0.1" 
-                      scale="0.1 0.1 0.1" 
-                      src="#avatarModel">
-                      
-          <!-- Scale animation (pulsating) -->
-          <a-animation 
-              attribute="scale" 
-              to="0.15 0.15 0.15" 
-              dur="2000" 
-              direction="alternate" 
-              easing="easeInOutSine" 
-              repeat="indefinite">
-          </a-animation>
 
-          <!-- Rotation animation (continuous spin on Z axis) -->
-          <a-animation 
-              attribute="rotation" 
-              to="0 0 360" 
-              dur="8000" 
-              easing="linear" 
-              repeat="indefinite">
-          </a-animation>
+        <a-gltf-model rotation="0 0 0" position="0 0 0.1" scale="0.1 0.1 0.1" src="#avatarModel">
+          <!-- Continuous rotation -->
+          <a-animation attribute="rotation" to="0 0 360" dur="10000" repeat="indefinite" easing="linear"></a-animation>
+          <!-- Pulse scale -->
+          <a-animation attribute="scale" from="0.1 0.1 0.1" to="0.15 0.15 0.15" dur="4000" direction="alternate" repeat="indefinite" easing="easeInOutSine"></a-animation>
         </a-gltf-model>
       </a-entity>
     </a-scene>
+
+    <!-- Link Button -->
+    <button id="link-button">Links NOO Works</button>
+
+    <!-- Sliding Menu -->
+    <div id="menu">
+      <button id="close-menu">✕</button>
+      <button class="menu-button" onclick="window.open('https://noo.com.br/', '_blank')">Website</button>
+      <button class="menu-button" onclick="window.open('https://www.instagram.com/noo.works/', '_blank')">Instagram</button>
+      <button class="menu-button" onclick="window.open('https://www.behance.net/noo_works', '_blank')">Behance</button>
+    </div>
+
+    <!-- JS to toggle menu -->
+    <script>
+      const linkBtn = document.getElementById('link-button');
+      const menu = document.getElementById('menu');
+      const closeBtn = document.getElementById('close-menu');
+
+      linkBtn.addEventListener('click', () => {
+        menu.classList.add('show');
+      });
+
+      closeBtn.addEventListener('click', () => {
+        menu.classList.remove('show');
+      });
+    </script>
   </body>
 </html>
